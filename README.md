@@ -76,20 +76,16 @@ npx supabase login
 npx supabase link --project-ref TU-PROJECT-REF
 ```
 
-Variables secretas (Resend para el correo de "recordar usuario"):
+Variable secreta para CORS:
 
 ```bash
-npx supabase secrets set RESEND_API_KEY=re_xxx CORREO_REMITENTE="Cumple de Uli <hola@tu-dominio.com>" SITIO_URL=https://TU-USUARIO.github.io/TU-REPO/
+npx supabase secrets set SITIO_URL=https://TU-USUARIO.github.io/TU-REPO/
 ```
 
-Despliegue (las dos primeras sin verificación de JWT porque se usan sin sesión):
+Despliegue (`login-usuario` sin verificación de JWT porque se usa antes de iniciar sesión):
 
 ```bash
 npx supabase functions deploy login-usuario --no-verify-jwt
-```
-
-```bash
-npx supabase functions deploy enviar-usuario --no-verify-jwt
 ```
 
 ```bash

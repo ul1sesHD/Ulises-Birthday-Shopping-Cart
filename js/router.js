@@ -2,7 +2,7 @@
 import { supabase, esDemo } from './supabase.js';
 import { $, $$, escapar, toast } from './ui.js';
 import { mostrarIntro } from './intro.js';
-import { vistaEntrar, vistaRegistro, vistaRecordar, vistaNuevaContrasena, cargarPerfil } from './auth.js';
+import { vistaBienvenida, vistaEntrar, vistaRegistro, cargarPerfil } from './auth.js';
 import { vistaInicio, vistaCategoria, vistaDetalle, vistaMisRegalos, vistaSpoiler, olvidarRegalos } from './regalos.js';
 
 export const app = {
@@ -12,7 +12,7 @@ export const app = {
   get esAdmin() { return !!this.perfil?.es_admin; },
 };
 
-const PUBLICAS = new Set(['entrar', 'registro', 'recordar', 'nueva-contrasena']);
+const PUBLICAS = new Set(['bienvenida', 'entrar', 'registro']);
 
 const rutas = {
   inicio: () => vistaInicio(),
@@ -28,10 +28,9 @@ const rutas = {
     const { vistaAdmin } = await import('./admin.js');
     return vistaAdmin();
   },
+  bienvenida: () => vistaBienvenida(),
   entrar: () => vistaEntrar(),
   registro: () => vistaRegistro(),
-  recordar: () => vistaRecordar(),
-  'nueva-contrasena': () => vistaNuevaContrasena(),
 };
 
 export function ir(hash, reemplazar = false) {
@@ -54,8 +53,8 @@ export async function render() {
   const turno = ++renderEnCurso;
   let { nombre, param } = leerRuta();
 
-  if (!app.sesion && !PUBLICAS.has(nombre)) { history.replaceState(null, '', '#/entrar'); nombre = 'entrar'; }
-  if (app.sesion && (nombre === '' || !rutas[nombre] || (PUBLICAS.has(nombre) && nombre !== 'nueva-contrasena'))) {
+  if (!app.sesion && !PUBLICAS.has(nombre)) { history.replaceState(null, '', '#/bienvenida'); nombre = 'bienvenida'; }
+  if (app.sesion && (nombre === '' || !rutas[nombre] || PUBLICAS.has(nombre))) {
     history.replaceState(null, '', '#/inicio');
     nombre = 'inicio';
   }
@@ -161,7 +160,7 @@ async function salir() {
   app.perfil = null;
   olvidarRegalos();
   toast('Cerraste sesión');
-  ir('#/entrar', true);
+  ir('#/bienvenida', true);
 }
 
 export async function alIniciarSesion(sesion, destino = '#/inicio') {
@@ -179,10 +178,7 @@ async function arrancar() {
   if (app.sesion) app.perfil = await cargarPerfil(app.sesion);
 
   supabase.auth.onAuthStateChange(async (evento, sesion) => {
-    if (evento === 'PASSWORD_RECOVERY') {
-      app.sesion = sesion;
-      ir('#/nueva-contrasena', true);
-    } else if (evento === 'TOKEN_REFRESHED' || evento === 'USER_UPDATED') {
+    if (evento === 'TOKEN_REFRESHED' || evento === 'USER_UPDATED') {
       app.sesion = sesion;
     } else if (evento === 'SIGNED_OUT') {
       app.sesion = null;
@@ -194,8 +190,7 @@ async function arrancar() {
 
   if (esDemo) console.info('ULI 23 en modo demo: los datos se guardan solo en este navegador. La cuenta con usuario "uli" es admin.');
 
-  const recuperando = location.hash.includes('type=recovery');
-  if (!recuperando && !sessionStorage.getItem('uli23-intro')) {
+  if (!sessionStorage.getItem('uli23-intro')) {
     await mostrarIntro(async () => {
       sessionStorage.setItem('uli23-intro', '1');
       app.desdeIntro = true;

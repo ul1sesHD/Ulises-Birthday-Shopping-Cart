@@ -102,3 +102,19 @@
 @media (min-width: 768px) and (max-width: 1023px) {
   .cal__dia { aspect-ratio: 4 / 3; }
 }
+
+/* Cuantos dias faltan para el cumple */
+.cal__contador {
+  display: flex; width: fit-content; align-items: center; gap: 0.5em; flex-wrap: wrap;
+  margin: 0 auto var(--sp-5);
+  padding: 0.35em 0.9em 0.35em 0.4em;
+  background: var(--ink-black); color: var(--gold);
+  border-radius: var(--r-pill);
+  font-family: var(--font-display); font-size: clamp(1.05rem, 3.4vw, 1.35rem);
+  transform: rotate(-1.5deg);
+}
+.cal__num-faltan {
+  display: inline-grid; place-items: center; min-width: 1.8em; height: 1.8em; padding: 0 0.3em;
+  background: var(--gold); color: var(--ink-black); border-radius: var(--r-pill);
+  font-size: 1.25em;
+}

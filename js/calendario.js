@@ -40,6 +40,11 @@ export function htmlCalendario(hoy = new Date()) {
     return `<div class="cal__grande" aria-hidden="true"><span class="cal__grande-dia">${nombre}</span><span class="cal__grande-num">${d}</span></div>`;
   };
 
+  const faltan = Math.round((new Date(ANIO, MES, CUMPLE) - hoySinHora) / 86400000);
+  const contador = faltan > 1 ? `<span class="cal__num-faltan">${faltan}</span><span>días para mi cumple</span>`
+    : faltan === 1 ? '<span class="cal__num-faltan">1</span><span>día para mi cumple</span>'
+    : faltan === 0 ? '<span>Hoy es mi cumple</span>' : '';
+
   return `
     <div class="cal__hoja">
       <div class="cal__espiral" aria-hidden="true"></div>
@@ -48,6 +53,7 @@ export function htmlCalendario(hoy = new Date()) {
         <span class="cal__anio">2026</span>
       </header>
       <div class="cal__destacado">${grande(5)}${grande(6, true)}${grande(7)}</div>
+      ${contador ? `<p class="cal__contador">${contador}</p>` : ''}
       <div class="cal__semana" aria-hidden="true">${DIAS.map(([c, l]) => `<abbr title="${l}">${c}</abbr>`).join('')}</div>
       <ol class="cal__grid" aria-label="Días de diciembre de 2026">${celdas.join('')}</ol>
     </div>`;

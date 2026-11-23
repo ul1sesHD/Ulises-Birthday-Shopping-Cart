@@ -12,8 +12,8 @@ export function mostrarIntro(alContinuar) {
       <i class="fa-solid fa-champagne-glasses intro__deco intro__deco--3" aria-hidden="true"></i>
       <h1 class="intro__texto" id="intro-titulo">
         <span class="intro__broma">bromita,</span>
-        <span class="intro__medio">tu regalo es</span>
-        <span class="intro__grande">mi presencia</span>
+        <span class="intro__medio">mi regalo es</span>
+        <span class="intro__grande">tu presencia</span>
       </h1>
       <button type="button" class="intro__boton">
         <i class="fa-solid fa-gift" aria-hidden="true"></i>

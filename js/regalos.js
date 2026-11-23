@@ -94,7 +94,7 @@ export async function vistaInicio() {
     <section class="cal ${c ? cas(i++) : 'revelar'}" aria-label="Calendario de diciembre 2026">${htmlCalendario()}</section>
 
     <section class="categorias" id="categorias" aria-labelledby="titulo-cat">
-      <h2 class="categorias__titulo ${cas(i++)}" id="titulo-cat">Elige tu <span>categoría</span></h2>
+      <h2 class="categorias__titulo ${cas(i++)}" id="titulo-cat"><span class="paso" aria-hidden="true">2</span>Elige tu <span>categoría</span></h2>
       <p class="categorias__mensaje ${cas(i++)}">Porque sé que me amas y <em>maybe</em> hay 0 creatividad, aquí hay muchas ideas a diferentes precios</p>
       <div class="categorias__grid">
         ${secciones.map((s) => `

@@ -37,7 +37,8 @@ p { margin: 0; }
 /* ---------- Layout general ---------- */
 
 #app { min-height: 100dvh; display: flex; flex-direction: column; }
-#vista { flex: 1; padding-bottom: calc(var(--nav-alto) + var(--sp-6)); }
+:root { --nav-extra: calc(10px + env(safe-area-inset-bottom, 0px)); }
+#vista { flex: 1; padding-bottom: calc(var(--nav-alto) + var(--nav-extra) + var(--sp-6)); }
 #vista:focus { outline: none; }
 .vista-sin-nav #vista { padding-bottom: 0; }
 
@@ -45,12 +46,13 @@ p { margin: 0; }
 
 .nav {
   position: fixed; z-index: 50; left: 0; right: 0; bottom: 0;
-  height: var(--nav-alto);
+  height: calc(var(--nav-alto) + var(--nav-extra));
+  padding-bottom: var(--nav-extra);
   background: var(--prussian);
   border-top: 3px solid var(--ink-black);
   box-shadow: 0 -4px 0 var(--oxford);
 }
-.nav__lista { list-style: none; margin: 0; padding: 0 var(--sp-2); height: 100%; display: flex; justify-content: space-around; align-items: stretch; }
+.nav__lista { list-style: none; margin: 0; padding: 4px var(--sp-3) 0; height: 100%; display: flex; justify-content: space-around; align-items: stretch; }
 .nav__lista li { flex: 1; display: flex; }
 .nav__link {
   flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
@@ -65,7 +67,7 @@ p { margin: 0; }
 @media (min-width: 768px) {
   #vista { padding-bottom: var(--sp-7); }
   .nav {
-    position: sticky; top: 0; bottom: auto;
+    position: sticky; top: 0; bottom: auto; height: var(--nav-alto); padding-bottom: 0;
     border-top: 0; border-bottom: 3px solid var(--ink-black);
     box-shadow: 0 4px 0 var(--oxford);
   }
@@ -173,7 +175,7 @@ textarea.input { min-height: 96px; resize: vertical; }
 
 .toasts {
   position: fixed; z-index: 300; left: 50%; transform: translateX(-50%);
-  bottom: calc(var(--nav-alto) + var(--sp-4));
+  bottom: calc(var(--nav-alto) + var(--nav-extra) + var(--sp-4));
   display: flex; flex-direction: column; gap: var(--sp-2); width: min(100% - 2rem, 420px);
   pointer-events: none;
 }

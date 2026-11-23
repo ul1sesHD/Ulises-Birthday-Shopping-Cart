@@ -1,4 +1,4 @@
-// Registro, inicio de sesion, recordar usuario y nueva contrasena.
+// Bienvenida, registro e inicio de sesion.
 import { supabase, llamarFuncion, esDemo } from './supabase.js';
 import { SITIO_URL } from './config.js';
 import { $, escapar, toast } from './ui.js';
@@ -83,21 +83,39 @@ function entrada(vista) {
 
 const demoAviso = () => esDemo ? '<span>Modo demo: crea una cuenta de prueba. Con el usuario <strong>uli</strong> entras como admin.</span>' : '';
 
+// ---------- Bienvenida: paso 1 ----------
+
+export function vistaBienvenida() {
+  const v = $('#vista');
+  v.innerHTML = `
+    <section class="acceso">
+      <div class="acceso__panel bienvenida${app.desdeIntro ? ' cascada' : ''}">
+        <span class="paso" aria-hidden="true">1</span>
+        <h1 class="bienvenida__titulo">Crea tu cuenta <span>rápido</span></h1>
+        <p class="acceso__texto">Así apartas tu regalo. Puede ser cualquier correo y cualquier contraseña.</p>
+        <div class="bienvenida__botones">
+          <a class="btn btn--grande btn--bloque" href="#/registro"><i class="fa-solid fa-user-plus" aria-hidden="true"></i>Crear cuenta</a>
+          <a class="btn btn--grande btn--bloque btn--secundario" href="#/entrar"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i>Iniciar sesión</a>
+        </div>
+        ${esDemo ? `<div class="acceso__pie">${demoAviso()}</div>` : ''}
+      </div>
+    </section>`;
+}
+
 // ---------- Entrar ----------
 
 export function vistaEntrar() {
   const form = entrada(panel({
-    titulo: 'Hola, <span>entra</span>',
-    texto: 'Con tu usuario y contraseña ves los regalos y apartas el tuyo.',
-    nota: 'Si es tu primera vez, crea tu cuenta. Puede ser cualquier correo y cualquier contraseña.',
+    titulo: 'Inicia <span>sesión</span>',
+    texto: 'Con tu usuario (o tu correo) y tu contraseña.',
+    nota: 'Si se te olvida tu usuario o tu contraseña, avísale a Uli.',
     cuerpo: `
       <form class="acceso__form" novalidate>
         ${campo({ id: 'usuario', etiqueta: 'Usuario', icono: 'fa-user', auto: 'username', extra: 'autocapitalize="none" spellcheck="false" required' })}
         ${campo({ id: 'clave', etiqueta: 'Contraseña', tipo: 'password', icono: 'fa-lock', auto: 'current-password', extra: 'required' })}
         <button class="btn btn--grande btn--bloque" type="submit"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i>Entrar</button>
-        <button class="enlace" type="button" data-olvide style="align-self:center">Olvidé mi contraseña</button>
       </form>`,
-    pie: `<span>¿Primera vez aquí? <a href="#/registro">Crea tu cuenta</a></span><span><a href="#/recordar">No me acuerdo de mi usuario</a></span>${demoAviso()}`,
+    pie: `<span>¿Primera vez aquí? <a href="#/registro">Crea tu cuenta</a></span><span><a href="#/bienvenida">Volver</a></span>`,
   }));
   prepararForm(form);
 
@@ -136,61 +154,6 @@ export function vistaEntrar() {
     }
   });
 
-  form.querySelector('[data-olvide]').addEventListener('click', () => vistaOlvide());
-}
-
-// ---------- Olvide mi contrasena ----------
-
-function vistaOlvide() {
-  const form = entrada(panel({
-    titulo: 'Nueva <span>contraseña</span>',
-    texto: 'Escribe el correo con el que te registraste y te mandamos un enlace para cambiarla.',
-    cuerpo: `
-      <form class="acceso__form" novalidate>
-        ${campo({ id: 'correo', etiqueta: 'Correo', tipo: 'email', icono: 'fa-envelope', auto: 'email', extra: 'required' })}
-        <div data-aviso></div>
-        <button class="btn btn--grande btn--bloque" type="submit"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i>Enviar enlace</button>
-      </form>`,
-    pie: '<a href="#/entrar">Volver a entrar</a>',
-  }));
-  prepararForm(form);
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const correo = form.correo.value.trim().toLowerCase();
-    if (!RE_CORREO.test(correo)) return errorEn(form, 'correo', 'Revisa el correo.');
-    const boton = form.querySelector('[type="submit"]');
-    ocupado(boton, true, 'Enviando');
-    await supabase.auth.resetPasswordForEmail(correo, { redirectTo: SITIO_URL });
-    ocupado(boton, false);
-    form.querySelector('[data-aviso]').innerHTML = `<p class="acceso__aviso"><i class="fa-solid fa-envelope-circle-check" aria-hidden="true"></i><span>Si ese correo está registrado, te llegará un enlace para cambiar tu contraseña.</span></p>`;
-  });
-}
-
-export function vistaNuevaContrasena() {
-  const form = entrada(panel({
-    titulo: 'Elige tu nueva <span>contraseña</span>',
-    texto: 'Mínimo 8 caracteres.',
-    cuerpo: `
-      <form class="acceso__form" novalidate>
-        ${campo({ id: 'clave', etiqueta: 'Nueva contraseña', tipo: 'password', icono: 'fa-lock', auto: 'new-password', extra: 'required minlength="8"' })}
-        ${campo({ id: 'clave2', etiqueta: 'Confírmala', tipo: 'password', icono: 'fa-lock', auto: 'new-password', extra: 'required' })}
-        <button class="btn btn--grande btn--bloque" type="submit"><i class="fa-solid fa-check" aria-hidden="true"></i>Guardar contraseña</button>
-      </form>`,
-  }));
-  prepararForm(form);
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if (form.clave.value.length < 8) return errorEn(form, 'clave', 'Usa mínimo 8 caracteres.');
-    if (form.clave.value !== form.clave2.value) return errorEn(form, 'clave2', 'Las contraseñas no coinciden.');
-    const boton = form.querySelector('[type="submit"]');
-    ocupado(boton, true, 'Guardando');
-    const { error } = await supabase.auth.updateUser({ password: form.clave.value });
-    if (error) { ocupado(boton, false); return errorEn(form, 'clave', 'No se pudo guardar. Pide otro enlace.'); }
-    toast('Contraseña actualizada');
-    const { data } = await supabase.auth.getSession();
-    if (data.session) await alIniciarSesion(data.session);
-    else location.hash = '#/entrar';
-  });
 }
 
 // ---------- Registro ----------
@@ -205,13 +168,13 @@ export function vistaRegistro() {
         ${campo({ id: 'nombre', etiqueta: 'Tu nombre', icono: 'fa-face-smile', auto: 'name', extra: 'required maxlength="60"' })}
         ${campo({ id: 'usuario', etiqueta: 'Usuario', icono: 'fa-user', auto: 'username', ayuda: 'De 3 a 20 letras minúsculas, números, punto o guion bajo.', extra: 'autocapitalize="none" spellcheck="false" required maxlength="20"' })}
         <span class="campo__estado" data-estado-usuario aria-live="polite"></span>
-        ${campo({ id: 'correo', etiqueta: 'Correo', tipo: 'email', icono: 'fa-envelope', auto: 'email', ayuda: 'Si es un correo real, te sirve para recuperar tu usuario o contraseña.', extra: 'required' })}
+        ${campo({ id: 'correo', etiqueta: 'Correo', tipo: 'email', icono: 'fa-envelope', auto: 'email', ayuda: 'También puedes iniciar sesión con tu correo en lugar del usuario.', extra: 'required' })}
         ${campo({ id: 'clave', etiqueta: 'Contraseña', tipo: 'password', icono: 'fa-lock', auto: 'new-password', ayuda: 'Mínimo 8 caracteres.', extra: 'required minlength="8"' })}
         ${campo({ id: 'clave2', etiqueta: 'Confirma tu contraseña', tipo: 'password', icono: 'fa-lock', auto: 'new-password', extra: 'required' })}
         <div data-aviso></div>
         <button class="btn btn--grande btn--bloque" type="submit"><i class="fa-solid fa-user-plus" aria-hidden="true"></i>Crear cuenta</button>
       </form>`,
-    pie: `<span>¿Ya tienes cuenta? <a href="#/entrar">Entra aquí</a></span>${demoAviso()}`,
+    pie: `<span>¿Ya tienes cuenta? <a href="#/entrar">Inicia sesión</a></span><span><a href="#/bienvenida">Volver</a></span>${demoAviso()}`,
   }));
   prepararForm(form);
 
@@ -267,12 +230,11 @@ export function vistaRegistro() {
     if (error) {
       ocupado(boton, false);
       const m = (error.message || '').toLowerCase();
-      if (m.includes('registered') || m.includes('already')) return errorEn(form, 'correo', 'Ese correo ya tiene cuenta. Entra o recupera tu usuario.');
+      if (m.includes('registered') || m.includes('already')) return errorEn(form, 'correo', 'Ese correo ya tiene cuenta. Inicia sesión con él.');
       if (m.includes('password')) return errorEn(form, 'clave', 'Esa contraseña no se puede usar. Prueba otra más larga.');
       if (m.includes('usuario') || m.includes('database')) return errorEn(form, 'usuario', 'Ese usuario ya existe. Prueba otro.');
       return errorEn(form, 'correo', 'No se pudo crear la cuenta. Intenta otra vez.');
     }
-    llamarFuncion('enviar-usuario', { email: correo }).catch(() => {});
     if (data.session) {
       toast(`Qué gusto tenerte aquí, ${nombre.split(" ")[0]}`);
       await alIniciarSesion(data.session);
@@ -281,32 +243,5 @@ export function vistaRegistro() {
       form.querySelector('[data-aviso]').innerHTML = `<p class="acceso__aviso"><i class="fa-solid fa-envelope-circle-check" aria-hidden="true"></i><span>Listo. Te mandamos un correo a ${escapar(correo)} para confirmar tu cuenta. Después entra con tu usuario <strong>${escapar(usuario)}</strong>.</span></p>`;
       boton.hidden = true;
     }
-  });
-}
-
-// ---------- Recordar usuario ----------
-
-export function vistaRecordar() {
-  const form = entrada(panel({
-    titulo: '¿Cuál era mi <span>usuario</span>?',
-    texto: 'Escribe tu correo y te lo mandamos.',
-    cuerpo: `
-      <form class="acceso__form" novalidate>
-        ${campo({ id: 'correo', etiqueta: 'Correo', tipo: 'email', icono: 'fa-envelope', auto: 'email', extra: 'required' })}
-        <div data-aviso></div>
-        <button class="btn btn--grande btn--bloque" type="submit"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i>Mandarme mi usuario</button>
-      </form>`,
-    pie: '<a href="#/entrar">Volver a entrar</a>',
-  }));
-  prepararForm(form);
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const correo = form.correo.value.trim().toLowerCase();
-    if (!RE_CORREO.test(correo)) return errorEn(form, 'correo', 'Revisa el correo.');
-    const boton = form.querySelector('[type="submit"]');
-    ocupado(boton, true, 'Enviando');
-    try { await llamarFuncion('enviar-usuario', { email: correo }); } catch { /* siempre el mismo mensaje */ }
-    ocupado(boton, false);
-    form.querySelector('[data-aviso]').innerHTML = `<p class="acceso__aviso"><i class="fa-solid fa-envelope-circle-check" aria-hidden="true"></i><span>Si ese correo está registrado, te enviamos tu usuario.</span></p>`;
   });
 }
