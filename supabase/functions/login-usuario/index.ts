@@ -5,7 +5,8 @@ import { preflight, responder } from '../_shared/cors.ts';
 
 const URL_SB = Deno.env.get('SUPABASE_URL')!;
 const SERVICE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-const ANON = Deno.env.get('SUPABASE_ANON_KEY')!;
+// Si el proyecto ya no tiene la anon key clasica, la service role tambien sirve para iniciar sesion.
+const ANON = Deno.env.get('SUPABASE_ANON_KEY') || SERVICE;
 const ERROR = { error: 'Usuario o contraseña incorrectos.' };
 
 Deno.serve(async (req) => {

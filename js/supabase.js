@@ -27,10 +27,12 @@ export async function llamarFuncion(nombre, cuerpo, { timeout = 20000 } = {}) {
   try {
     const res = await fetch(`${SUPABASE_URL}/functions/v1/${nombre}`, {
       method: 'POST',
+      // La llave publishable (sb_publishable_...) no es un JWT: solo va en apikey.
+      // Authorization se manda solo cuando hay sesion.
       headers: {
         'Content-Type': 'application/json',
         apikey: SUPABASE_ANON_KEY,
-        Authorization: `Bearer ${session?.access_token || SUPABASE_ANON_KEY}`,
+        ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
       },
       body: JSON.stringify(cuerpo),
       signal: ctrl.signal,
