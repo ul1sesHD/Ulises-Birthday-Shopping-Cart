@@ -12,11 +12,27 @@ let cache = null;
 
 export function olvidarRegalos() { cache = null; }
 
+// Respaldo estatico: data/regalos.json viaja con la pagina. Si en Supabase un regalo
+// no tiene imagen o precio (por ejemplo, si no se corrio actualizar-regalos.sql),
+// se usan los del archivo.
+let catalogo = null;
+function cargarCatalogo() {
+  catalogo ??= fetch('./data/regalos.json')
+    .then((r) => (r.ok ? r.json() : { regalos: [] }))
+    .then((c) => new Map((c.regalos || []).map((g) => [g.slug, g])))
+    .catch(() => new Map());
+  return catalogo;
+}
+
 export async function cargarRegalos(forzar = false) {
   if (cache && !forzar) return cache;
-  const { data, error } = await supabase.rpc('listar_regalos');
+  const [{ data, error }, respaldo] = await Promise.all([supabase.rpc('listar_regalos'), cargarCatalogo()]);
   if (error) throw error;
-  cache = (data || []).map((r) => ({ ...r, precio: r.precio == null ? null : Number(r.precio) }));
+  cache = (data || []).map((r) => {
+    const g = respaldo.get(r.slug);
+    const precio = r.precio ?? (g && g.seccion !== 'mejor-precio' ? g.precio : null);
+    return { ...r, imagen_url: r.imagen_url || g?.imagen || null, precio: precio == null ? null : Number(precio) };
+  });
   return cache;
 }
 
@@ -138,7 +154,7 @@ export function htmlTarjeta(r, { espiar = false } = {}) {
   if (r.tipo === 'compartido' && r.personas > 0 && (!admin || espiar)) etiquetas.push(`<span class="tarjeta__personas"><i class="fa-solid fa-user-group" aria-hidden="true"></i>${nPersonas(r.personas)}</span>`);
   if (espiar && r.tipo === 'exclusivo') etiquetas.push(`<span class="tarjeta__personas"><i class="fa-solid ${r.personas ? 'fa-lock' : 'fa-lock-open'}" aria-hidden="true"></i>${r.personas ? 'Apartado' : 'Libre'}</span>`);
   return `
-    <a class="tarjeta${estado === 'reservado' ? ' tarjeta--reservado' : ''}${estado === 'mio' ? ' tarjeta--mio' : ''} revelar" href="#/regalo/${encodeURIComponent(r.slug)}" style="${estiloCategoria(r)}">
+    <a class="tarjeta${estado === 'reservado' ? ' tarjeta--reservado' : ''}${estado === 'mio' ? ' tarjeta--mio' : ''}" href="#/regalo/${encodeURIComponent(r.slug)}" style="${estiloCategoria(r)}">
       <span class="cinta">${escapar(textoPrecio(r.precio))}</span>
       ${estado === 'mio' ? '<span class="marca-mio"><i class="fa-solid fa-bookmark" aria-hidden="true"></i>Lo guardaste</span>' : ''}
       <div class="tarjeta__img">

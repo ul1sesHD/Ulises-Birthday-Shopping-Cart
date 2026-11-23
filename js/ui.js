@@ -36,7 +36,7 @@ export function estiloCategoria(c) {
 /** Imagen del regalo o bloque con el icono de la categoria */
 export function imagenRegalo(r, { alt = '', cargar = 'lazy' } = {}) {
   if (r.imagen_url) {
-    return `<img src="${escapar(r.imagen_url)}" alt="${escapar(alt)}" loading="${cargar}" decoding="async" referrerpolicy="no-referrer" data-icono="${escapar(r.seccion_icono || 'fa-solid fa-gift')}">`;
+    return `<img src="${escapar(r.imagen_url)}" alt="${escapar(alt)}" width="640" height="640" loading="${cargar}" decoding="async" referrerpolicy="no-referrer" data-icono="${escapar(r.seccion_icono || 'fa-solid fa-gift')}">`;
   }
   return bloqueSinImagen(r.seccion_icono);
 }
