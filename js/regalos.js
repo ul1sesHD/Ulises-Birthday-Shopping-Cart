@@ -277,7 +277,10 @@ async function guardar(r) {
   }
   await cargarRegalos(true);
   await mostrarGracias();
-  await vistaDetalle(r.slug);
+  // Despues de las gracias va a Mis regalos y el menu brilla para que vean que hay mas
+  app.brilloNav = true;
+  app.recienGuardado = r.tipo;
+  ir('#/mis-regalos');
 }
 
 async function soltar(r, { despues, bote = false } = {}) {
@@ -303,8 +306,17 @@ export async function vistaMisRegalos() {
   const compartidos = mios.filter((r) => r.tipo === 'compartido');
   const v = $('#vista');
 
+  const recien = app.recienGuardado;
+  app.recienGuardado = null;
+  const aviso = exclusivo
+    ? `<div class="mis__aviso"><i class="fa-solid fa-lock" aria-hidden="true"></i><p>Ya apartaste tu regalo, así que <strong>nadie más lo puede elegir</strong>. Si cambias de opinión, quítalo con el bote y elige otro.</p></div>`
+    : compartidos.length
+      ? `<div class="mis__aviso mis__aviso--mas"><i class="fa-solid fa-gift" aria-hidden="true"></i><div>${recien === 'compartido' ? '<span class="mis__aviso-sub">Guardaste un regalo que no cuenta para tu límite</span>' : ''}<p class="mis__aviso-grande">Aún puedes elegir una opción más</p></div></div>`
+      : '';
+
   v.innerHTML = `
     <div class="mis">
+      ${aviso}
       <section aria-labelledby="t-apartado">
         <h1 class="mis__titulo" id="t-apartado">Tu regalo apartado</h1>
         ${exclusivo ? `
@@ -329,7 +341,8 @@ export async function vistaMisRegalos() {
       </section>
 
       <section aria-labelledby="t-tambien">
-        <h2 class="titulo-seccion" id="t-tambien" style="margin-bottom:var(--sp-4)"><i class="fa-solid fa-user-group" aria-hidden="true"></i>También vas a dar</h2>
+        <h2 class="titulo-seccion" id="t-tambien"><i class="fa-solid fa-user-group" aria-hidden="true"></i>Extras que no cuentan para tu límite</h2>
+        <p class="mis__explica">Son regalos gratis o compartidos que cualquiera puede dar, como una carta o un abrazo. Puedes guardar los que quieras además de tu regalo apartado.</p>
         ${compartidos.length ? `
           <ul class="lista-compartidos">
             ${compartidos.map((r) => `
@@ -341,7 +354,7 @@ export async function vistaMisRegalos() {
                 </div>
                 <button class="btn btn--icono btn--bote" type="button" data-soltar="${escapar(r.id)}" aria-label="Quitar ${escapar(r.nombre)} de mis regalos" title="Quitar de mis regalos"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
               </li>`).join('')}
-          </ul>` : '<p style="color:var(--muted-dark)">Aquí aparecen los regalos gratis o compartidos que guardes, como una carta o un abrazo.</p>'}
+          </ul>` : '<p style="color:var(--muted-dark)">Todavía no guardas ninguno.</p>'}
       </section>
 
       <p class="secreto"><i class="fa-solid fa-user-secret" aria-hidden="true"></i><span>Aunque sea ciberñoño, te pinky prometo que no programé nada para ver quién me regalará qué, para mantener la sorpresa.</span></p>

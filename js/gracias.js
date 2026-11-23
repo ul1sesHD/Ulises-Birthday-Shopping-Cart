@@ -1,5 +1,5 @@
 // Pantalla de agradecimiento que aparece al guardar un regalo.
-import { atraparFoco, confeti, movimientoReducido } from './ui.js';
+import { atraparFoco, confeti, movimientoReducido, diasParaCumple } from './ui.js';
 
 let lista;
 async function imagenes() {
@@ -18,6 +18,13 @@ function precargar(src) {
 }
 
 let ultima = null;
+
+function textoDias() {
+  const d = diasParaCumple();
+  if (d < 0) return '';
+  if (d === 0) return '<p class="gracias__dias">Es hoy, eh</p>';
+  return `<p class="gracias__dias">Te ${d === 1 ? 'queda' : 'quedan'} <span>${d}</span> ${d === 1 ? 'día' : 'días'} para conseguirlo, eh</p>`;
+}
 
 /** Muestra la capa de gracias. La promesa termina cuando se cierra. */
 export async function mostrarGracias() {
@@ -40,7 +47,8 @@ export async function mostrarGracias() {
     capa.innerHTML = `
       <p class="gracias__titulo" aria-hidden="true">Gracias</p>
       ${src ? `<figure class="polaroid gracias__foto"><img src="${src}" alt=""></figure>` : ''}
-      <p class="gracias__ayuda">Toca la pantalla para continuar</p>`;
+      ${textoDias()}
+      <p class="gracias__ayuda"><i class="fa-solid fa-hand-pointer" aria-hidden="true"></i>Toca cualquier parte de la pantalla para continuar</p>`;
     document.body.append(capa);
     capa.focus();
     confeti(50);
@@ -50,12 +58,13 @@ export async function mostrarGracias() {
       if (cerrada) return;
       cerrada = true;
       liberar();
-      clearTimeout(t);
       capa.classList.add('saliendo');
       setTimeout(() => { capa.remove(); resolver(); }, movimientoReducido() ? 200 : 320);
     };
     const liberar = atraparFoco(capa, cerrar);
-    const t = setTimeout(cerrar, 2800);
-    capa.addEventListener('click', cerrar);
+    // No se cierra sola: espera a que la persona toque. El primer medio segundo
+    // se ignora para que un doble toque no la cierre antes de verla.
+    const desde = Date.now();
+    capa.addEventListener('click', () => { if (Date.now() - desde > 500) cerrar(); });
   });
 }

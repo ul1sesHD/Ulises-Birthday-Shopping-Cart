@@ -60,6 +60,14 @@ export async function render() {
   }
 
   pintarNav(nombre);
+  if (app.brilloNav) {
+    app.brilloNav = false;
+    const nav = $('#nav');
+    nav.classList.remove('nav--brillo');
+    void nav.offsetWidth;
+    nav.classList.add('nav--brillo');
+    setTimeout(() => nav.classList.remove('nav--brillo'), 4500);
+  }
   const vista = $('#vista');
   vista.classList.remove('ruta-entra');
   document.body.classList.toggle('vista-sin-nav', !app.sesion);
