@@ -1,0 +1,42 @@
+/* ---------- Registro, entrar y recordar usuario ---------- */
+
+.acceso { min-height: 100dvh; display: grid; place-items: center; padding: var(--sp-6) var(--sp-4); }
+
+.acceso__panel {
+  position: relative; isolation: isolate; overflow: hidden;
+  width: min(100%, 480px);
+  background: var(--prussian);
+  border: 3px solid var(--oxford); border-radius: var(--r-lg);
+  box-shadow: 8px 8px 0 var(--oxford);
+  padding: var(--sp-6) clamp(1.1rem, 5vw, 2.25rem) var(--sp-5);
+}
+.acceso__marca {
+  position: absolute; z-index: -1; right: -0.08em; bottom: -0.22em;
+  font-family: var(--font-display); font-size: 15rem; line-height: 1; letter-spacing: -0.06em;
+  color: var(--oxford); opacity: 0.75;
+  pointer-events: none; user-select: none;
+}
+.acceso__cabeza { margin-bottom: var(--sp-5); }
+.acceso__titulo { font-size: var(--fs-h2); color: var(--bone); }
+.acceso__titulo span { color: var(--gold); }
+.acceso__texto { color: var(--muted-dark); margin-top: var(--sp-2); font-size: var(--fs-small); }
+.acceso__form { display: flex; flex-direction: column; gap: var(--sp-4); }
+.acceso__form .btn { margin-top: var(--sp-2); }
+.acceso__pie { display: flex; flex-direction: column; align-items: center; gap: var(--sp-1); margin-top: var(--sp-5); font-size: var(--fs-small); color: var(--muted-dark); text-align: center; }
+.acceso__aviso {
+  background: var(--ink-black); border: 2px solid var(--success); color: var(--bone);
+  border-radius: var(--r-md); padding: var(--sp-3) var(--sp-4); font-size: var(--fs-small);
+  display: flex; gap: var(--sp-3); align-items: flex-start;
+}
+.acceso__aviso i { color: var(--success); margin-top: 3px; }
+.acceso__aviso--error { border-color: var(--danger); }
+.acceso__aviso--error i { color: var(--danger); }
+
+.acceso__nota {
+  display: flex; gap: 0.6em; align-items: flex-start;
+  margin-top: var(--sp-3); padding: var(--sp-3) var(--sp-4);
+  background: var(--yellow); color: var(--ink-black);
+  border: 3px solid var(--ink-black); border-radius: var(--r-sm); box-shadow: 3px 3px 0 var(--ink-black);
+  font-weight: 800; font-size: var(--fs-small); line-height: 1.35;
+}
+.acceso__nota i { margin-top: 0.2em; }

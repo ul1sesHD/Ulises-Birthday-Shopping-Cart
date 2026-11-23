@@ -37,9 +37,14 @@ Mientras `js/config.js` tenga los valores de ejemplo, la página funciona en **m
 ## Supabase
 
 1. En Supabase > SQL Editor ejecuta `supabase/schema.sql` (cambia antes el correo de la sección 0 por el tuyo).
-2. Ejecuta `supabase/actualizar-regalos.sql` para poner precios, imágenes y nombres.
+2. Ejecuta `supabase/actualizar-regalos.sql` para poner precios, imágenes, nombres, categorías y rangos.
 3. En `js/config.js` pon `SUPABASE_URL`, `SUPABASE_ANON_KEY` y `SITIO_URL` (Project Settings > API). Nunca pongas la service role key en el frontend.
 4. En Authentication > URL Configuration agrega la URL de GitHub Pages en *Site URL* y en *Redirect URLs*.
+5. En Authentication > Sign In / Providers > Email apaga *Confirm email*, para que funcione con cualquier correo.
+
+Para borrar todas las reservas (por ejemplo, después de probar) ejecuta `supabase/limpiar-reservas.sql`. No se puede deshacer.
+
+Si cambias categorías o precios en `data/regalos.json`, vuelve a generar el SQL con `node scripts/extraer-productos.mjs --sql`.
 
 ### Script de extracción
 

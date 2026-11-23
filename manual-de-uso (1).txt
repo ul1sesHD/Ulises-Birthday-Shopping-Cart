@@ -1,0 +1,328 @@
+=====================================================================
+  ULI 23 - MANUAL DE USO (version 3)
+  Pagina de regalos de cumpleaños de Ulises (6 de diciembre de 2026)
+=====================================================================
+
+CONTENIDO
+  1. Que hay en el paquete
+  2. Las reglas de los regalos
+  3. Preparar la carpeta del proyecto
+  4. Construir la pagina con Claude Code
+  5. Configurar Supabase
+  6. Configurar el envio de correos (Resend)
+  7. Desplegar las Edge Functions
+  8. Publicar en GitHub Pages
+  9. Tu perfil de admin
+ 10. Como agregar o cambiar regalos
+ 11. Como cambiar las imagenes de "Gracias"
+ 12. Como mover o cambiar stickers
+ 13. Como lo usan las personas invitadas
+ 14. Problemas comunes
+
+
+---------------------------------------------------------------------
+1. QUE HAY EN EL PAQUETE
+---------------------------------------------------------------------
+
+  prompt-claude-code.md   Instrucciones completas para Claude Code.
+  schema.sql              Base de datos: tablas, seguridad, funciones,
+                          perfil de admin, 8 categorias y 37 regalos.
+  actualizacion-admin.sql Solo si ya habias corrido la version 2:
+                          agrega el perfil de admin y sus funciones.
+  regalos.json            El catalogo (categorias, links, tallas, notas).
+                          Claude Code lo usa para sacar imagen y precio
+                          de cada link.
+  manual-de-uso.txt       Este archivo.
+
+
+---------------------------------------------------------------------
+2. LAS REGLAS DE LOS REGALOS
+---------------------------------------------------------------------
+
+  EXCLUSIVO (todos los que tienen link, menos las pilas)
+    - Solo una persona lo puede guardar.
+    - Cada persona solo puede apartar UN exclusivo a la vez.
+    - Si alguien ya lo aparto, sale "Ya lo apartaron".
+
+  COMPARTIDO (Gratis, Tu consigue el mejor precio y las pilas)
+    - Lo puede guardar cualquier persona, las veces que sea.
+    - No cuenta para el limite: alguien puede guardar la carta, el
+      abrazo y ademas apartar un exclusivo.
+    - Se muestra "3 personas lo guardaron", sin nombres.
+
+  Ulises nunca ve quien guardo que.
+
+  Las 8 categorias:
+    Gratis                           3 regalos
+    Tu consigue el mejor precio      7 regalos
+    No me queda nadaaaaaaa           hasta $100     2 regalos
+    Presupuesto estudihambre         hasta $200     8 regalos
+    Presupuesto mini adulto          hasta $300     7 regalos
+    Mini adulto                      hasta $500     3 regalos
+    Adulto pro max                   hasta $1,000   5 regalos
+    Sugar daddy, POR FAVOR ALGUIEN   mas de $1,000  2 regalos
+
+  Nota: el mango Chilim Balam venia en $100 y en $200; quedo solo en
+  "No me queda nadaaaaaaa".
+
+
+---------------------------------------------------------------------
+3. PREPARAR LA CARPETA DEL PROYECTO
+---------------------------------------------------------------------
+
+  1. En tu carpeta del proyecto (la de las imagenes) crea:
+       supabase/   y copia ahi  schema.sql
+       data/       y copia ahi  regalos.json
+  2. Tu carpeta "Gracias" dejala dentro del proyecto. Claude Code la
+     encuentra y la mueve a assets/gracias/.
+  3. Fuente Eras Bold: es de pago, no viene en Google Fonts. Si la
+     tienes con licencia, copiala en  assets/fonts/eras-bold.woff2
+     (o .ttf). Si no, se usa Lexend Bold, que se parece mucho.
+  4. Revisa tus imagenes:
+     - Foto de Ulises: cuadrada, minimo 1200 x 1200 px.
+     - Stickers: PNG con fondo transparente, unos 500 x 500 px.
+     - Imagenes de Gracias: cualquier forma, menos de 400 KB cada una.
+
+
+---------------------------------------------------------------------
+4. CONSTRUIR LA PAGINA CON CLAUDE CODE
+---------------------------------------------------------------------
+
+  1. Abre la terminal en tu carpeta del proyecto y ejecuta:  claude
+  2. Pega todo el contenido de prompt-claude-code.md (desde la linea
+     horizontal hacia abajo).
+  3. Paso 0: te muestra tus imagenes. Confirma cual es la foto de
+     Ulises y cual es la carpeta de Gracias.
+  4. Paso 1: entra a cada link y saca imagen, precio y nombre. Te
+     muestra una tabla. Para los que fallen (algunas tiendas bloquean,
+     sobre todo Zara, Bershka y a veces Amazon):
+       - Abre el link en tu navegador.
+       - Guarda la imagen del producto (clic derecho > guardar).
+       - Pasasela a Claude Code junto con el precio.
+  5. Para verla en tu computadora:  npx serve .
+     y abre la direccion que aparece (normalmente http://localhost:3000).
+
+
+---------------------------------------------------------------------
+5. CONFIGURAR SUPABASE
+---------------------------------------------------------------------
+
+  1. Entra a https://supabase.com y crea un proyecto nuevo (gratis).
+  2. SQL Editor > New query: pega todo schema.sql y dale Run.
+     Si ya habias corrido la version 1, primero ejecuta las lineas de
+     limpieza que vienen comentadas al inicio del archivo.
+  4. Despues del Paso 1 de Claude Code, ejecuta tambien
+     supabase/actualizar-regalos.sql  (pone imagenes, precios y nombres).
+  5. Authentication > Sign In / Providers > Email:
+     - Deja activado "Email".
+     - Recomendado: desactiva "Confirm email" (el correo gratuito de
+       Supabase solo permite pocos envios por hora).
+  6. Authentication > URL Configuration:
+     - Site URL:  https://TU-USUARIO.github.io/NOMBRE-DEL-REPO/
+     - Redirect URLs: esa misma direccion y http://localhost:3000
+  7. Project Settings > API: copia Project URL y anon public key y
+     pegalas en js/config.js.
+     La anon key es publica. La "service_role" key NUNCA va en la
+     pagina ni en GitHub.
+
+
+---------------------------------------------------------------------
+6. CONFIGURAR EL ENVIO DE CORREOS (RESEND)
+---------------------------------------------------------------------
+
+  Sirve para mandar el usuario por correo (al registrarse y cuando
+  alguien lo olvida).
+
+  1. Crea una cuenta en https://resend.com y genera una API key.
+  2. IMPORTANTE: sin un dominio propio verificado, Resend solo envia a
+     tu propio correo (sirve para probar). Para que les llegue a todos,
+     verifica un dominio en Resend > Domains.
+  3. Remitente: algo como  cumple@tudominio.com
+
+
+---------------------------------------------------------------------
+7. DESPLEGAR LAS EDGE FUNCTIONS
+---------------------------------------------------------------------
+
+  Necesitas la CLI de Supabase ( https://supabase.com/docs/guides/cli ).
+  En la terminal, dentro de tu carpeta:
+
+    supabase login
+    supabase link --project-ref TU_PROJECT_REF
+
+    supabase secrets set RESEND_API_KEY=tu_api_key
+    supabase secrets set CORREO_REMITENTE="Cumple de Uli <cumple@tudominio.com>"
+    supabase secrets set SITIO_URL=https://TU-USUARIO.github.io/NOMBRE-DEL-REPO/
+
+    supabase functions deploy login-usuario    --no-verify-jwt
+    supabase functions deploy enviar-usuario   --no-verify-jwt
+    supabase functions deploy extraer-producto
+
+  (extraer-producto va SIN --no-verify-jwt: solo la usa Ulises con
+  sesion iniciada. TU_PROJECT_REF es el codigo en la URL de tu
+  proyecto de Supabase.)
+
+
+---------------------------------------------------------------------
+8. PUBLICAR EN GITHUB PAGES
+---------------------------------------------------------------------
+
+  1. Crea un repositorio en GitHub (por ejemplo  uli-23 ).
+  2. Sube la carpeta:
+        git init
+        git add .
+        git commit -m "Primera version de ULI 23"
+        git branch -M main
+        git remote add origin https://github.com/TU-USUARIO/uli-23.git
+        git push -u origin main
+  3. En GitHub: Settings > Pages > Source: "Deploy from a branch",
+     Branch: main, carpeta: / (root). Guarda.
+  4. En uno o dos minutos estara en:
+        https://TU-USUARIO.github.io/uli-23/
+  5. Cada cambio: git add . / git commit / git push
+
+
+---------------------------------------------------------------------
+9. TU PERFIL DE ADMIN
+---------------------------------------------------------------------
+
+  Se crea solo:
+  1. Pusiste tu correo en la seccion 0 de schema.sql (paso 5.2).
+  2. Entra a la pagina y registrate con ESE correo (usuario sugerido:
+     uli). Al registrarte ya eres admin; no hay que correr nada mas.
+  3. Si ya tenias cuenta con ese correo antes de ponerlo,
+     vuelve a correr la seccion 9 de schema.sql (o todo
+     actualizacion-admin.sql), cierra sesion y entra otra vez.
+
+  Para agregar otra persona admin (por ejemplo quien te ayuda a
+  organizar), en SQL Editor:
+     insert into public.admins_permitidos (email) values ('su@correo.com');
+  y luego corre la seccion 9 de schema.sql si esa persona ya tenia cuenta.
+
+  Con una cuenta admin:
+  - Aparece "Admin" en el menu.
+  - Ves que regalos estan apartados y cuantas personas guardaron cada
+    compartido, pero NUNCA quien.
+  - Agregas, editas, ocultas y borras regalos.
+  - No puedes guardar regalos.
+
+
+---------------------------------------------------------------------
+10. COMO AGREGAR O CAMBIAR REGALOS
+---------------------------------------------------------------------
+
+  DESDE EL CELULAR O LA COMPU (lo normal):
+    1. En la app o pagina de la tienda, copia el link del producto
+       (sirven los links cortos de "Compartir", como amzn.to o a.co).
+    2. En la pagina: Admin > Agregar regalo > "Pegar" > "Leer link".
+    3. Se llenan solos el nombre, la imagen, el precio y la
+       descripcion. Revisa la vista previa.
+    4. Ajusta:
+       - Nombre corto (2 a 4 palabras).
+       - Categoria (se sugiere sola segun el precio).
+       - "Solo una persona" o "Cualquiera puede darlo".
+       - Talla y nota si aplica.
+       - Imagen: si no salio o no te gusta, "Subir otra" (puedes
+         tomarle foto o elegir una de tu galeria).
+    5. "Añadir regalo". Listo, ya aparece en la pagina.
+
+    Si el link no se puede leer (algunas tiendas bloquean), te deja el
+    formulario vacio para llenarlo a mano. Nunca se queda trabado.
+    Para regalos sin link (una carta, un abrazo): "Agregar sin link".
+
+  EDITAR, OCULTAR O BORRAR:
+    Admin > Regalos. Cada regalo tiene editar, mostrar/ocultar y borrar.
+    - Si alguien ya lo guardo, no se puede borrar: ocultalo.
+    - Ocultar lo quita de la pagina sin perder quien lo guardo.
+
+  DESDE SUPABASE (si algo falla):
+    Table Editor > regalos. Campos: slug (unico, sin espacios),
+    seccion_id, tipo (exclusivo o compartido), nombre, descripcion,
+    precio (vacio = "Tu decides", 0 = Gratis), imagen_url, enlace_url,
+    tienda, talla, nota, activo.
+
+  Colores o iconos de una categoria: tabla secciones (color_fondo,
+  color_icono, color_texto e icono de Font Awesome "solid").
+  Iconos: https://fontawesome.com/search?ic=free
+
+
+---------------------------------------------------------------------
+11. COMO CAMBIAR LAS IMAGENES DE "GRACIAS"
+---------------------------------------------------------------------
+
+  1. Agrega o quita imagenes en  assets/gracias/ .
+  2. Actualiza la lista en  assets/gracias/gracias.json  (un nombre de
+     archivo por elemento), o pidele a Claude Code que la regenere.
+  3. Sube los cambios a GitHub.
+  Cada vez que alguien guarda un regalo sale una al azar.
+
+
+---------------------------------------------------------------------
+12. COMO MOVER O CAMBIAR STICKERS
+---------------------------------------------------------------------
+
+  Se acomodan en  assets/stickers.json . Cada uno tiene:
+
+    archivo     nombre del PNG en assets/img/
+    contenedor  encabezado, calendario o categorias
+    movil / tablet / desktop:
+      x         distancia desde la izquierda, en % del contenedor
+      y         distancia desde arriba, en % del contenedor
+      ancho     tamaño, en % del ancho del contenedor
+      rotacion  grados (negativo = gira a la izquierda)
+
+
+---------------------------------------------------------------------
+13. COMO LO USAN LAS PERSONAS INVITADAS
+---------------------------------------------------------------------
+
+  1. Abren el link. Lo primero: "bromita, tu regalo es mi presencia"
+     y el boton gigante "Aun asi te quiero regalar algo".
+  2. Crean cuenta (nombre, usuario, correo, contraseña) y les llega un
+     correo con su usuario. O entran con usuario y contraseña.
+  3. La pagina aparece en cascada: encabezado ULI 23, calendario y los
+     botones de categoria.
+  4. Eligen categoria, abren un regalo y ven la imagen grande, el
+     precio, la descripcion y "Guardar este regalo".
+  5. Al guardarlo sale "Gracias" en gigante con una imagen tuya.
+  6. En "Mis regalos" ven lo que guardaron y pueden soltarlo.
+  7. Si olvidan su usuario: "Olvide mi usuario" y escriben su correo.
+
+
+---------------------------------------------------------------------
+14. PROBLEMAS COMUNES
+---------------------------------------------------------------------
+
+  "Database error saving new user" al registrarse
+    El usuario no cumple el formato (3 a 20 caracteres: minusculas,
+    numeros, punto o guion bajo) o ya existe.
+
+  No aparecen regalos
+    Revisa js/config.js y que schema.sql se haya ejecutado sin errores.
+
+  Un regalo sale sin imagen
+    La tienda bloqueo la lectura. Guarda la imagen a mano en
+    assets/regalos/ y pon la ruta en imagen_url.
+
+  No llegan los correos
+    Dominio sin verificar en Resend o secrets mal puestos. Revisa
+    Supabase > Edge Functions > enviar-usuario > Logs.
+
+  No me sale "Admin" en el menu
+    Te registraste con un correo distinto al de admins_permitidos, o
+    lo agregaste despues: corre la seccion 9 de schema.sql, cierra
+    sesion y entra de nuevo.
+
+  "Leer link" no trae nada
+    La tienda bloqueo la lectura o no esta desplegada la funcion
+    extraer-producto (paso 7). Llena los datos a mano y sube la imagen.
+
+  "Usuario o contraseña incorrectos" aunque estan bien
+    La cuenta puede estar sin confirmar: Authentication > Users,
+    abre a la persona y confirmala.
+
+  Imagenes o estilos no cargan en GitHub Pages pero si en local
+    Alguna ruta empieza con "/". Deben ser relativas: "./css/...".
+
+  Los cambios no se ven
+    GitHub Pages tarda hasta 2 minutos. Recarga con Ctrl + Shift + R.

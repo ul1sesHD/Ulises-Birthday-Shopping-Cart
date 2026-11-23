@@ -1,0 +1,36 @@
+/* ---------- Pantalla de gracias ---------- */
+
+.gracias {
+  position: fixed; inset: 0; z-index: 400;
+  background: rgba(0, 8, 20, 0.92);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: var(--sp-5); padding: var(--sp-5);
+  overflow: hidden; cursor: pointer;
+  animation: aparecer 220ms ease both;
+}
+.gracias.saliendo { animation: desvanecer 320ms ease forwards; }
+
+.gracias__titulo {
+  position: relative; z-index: 2;
+  font-family: var(--font-display); font-size: clamp(4rem, 18vw, 12rem); line-height: 0.85;
+  color: var(--gold); text-shadow: 6px 6px 0 var(--oxford), 12px 12px 0 var(--prussian);
+  letter-spacing: -0.04em;
+  animation: gracias-entra 700ms var(--ease-rebote) both;
+}
+.gracias__foto {
+  position: relative; z-index: 2;
+  width: min(70vw, 420px);
+  animation: gracias-giro 800ms var(--ease-rebote) 120ms both;
+}
+.gracias__foto img { aspect-ratio: auto; max-height: 52vh; object-fit: contain; background: #fff; }
+.gracias__ayuda { position: relative; z-index: 2; font-size: var(--fs-tiny); color: var(--muted-dark); }
+
+/* Confeti */
+.confeti { position: fixed; inset: 0; pointer-events: none; z-index: 401; overflow: hidden; }
+.confeti__pieza {
+  position: absolute; top: -24px; left: var(--x);
+  width: var(--w, 10px); height: var(--h, 14px);
+  background: var(--c);
+  border-radius: 2px;
+  animation: confeti-cae var(--d, 2.4s) cubic-bezier(0.25, 0.6, 0.4, 1) var(--delay, 0s) forwards;
+}

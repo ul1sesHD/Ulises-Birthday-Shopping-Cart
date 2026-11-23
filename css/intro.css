@@ -1,0 +1,45 @@
+/* ---------- Pantalla de bienvenida "bromita" ---------- */
+
+.intro {
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: clamp(2rem, 6vh, 3.5rem);
+  padding: var(--sp-6) var(--sp-4);
+  background-color: var(--ink-black);
+  background-image: radial-gradient(var(--oxford) 1.2px, transparent 1.4px);
+  background-size: 22px 22px;
+  text-align: center;
+  overflow: hidden;
+}
+
+.intro__texto { font-family: var(--font-display); display: flex; flex-direction: column; align-items: center; line-height: 0.95; position: relative; z-index: 1; }
+.intro__broma { font-size: clamp(1.5rem, 5vw, 2.5rem); color: var(--muted-dark); transform: rotate(-4deg); margin-bottom: 0.5em; }
+.intro__medio { font-size: clamp(2rem, 7vw, 4rem); color: var(--bone); }
+.intro__grande {
+  font-size: clamp(3.5rem, 13vw, 9rem); color: var(--gold);
+  text-shadow: 6px 6px 0 var(--oxford);
+  letter-spacing: -0.03em; margin-top: 0.1em;
+}
+
+.intro__boton {
+  position: relative; z-index: 1;
+  width: min(100%, 560px); min-height: 84px;
+  display: flex; align-items: center; justify-content: center; gap: 0.7em;
+  padding: 0.7em 1.2em;
+  font-family: var(--font-display); font-size: clamp(1.25rem, 3.5vw, 2rem); line-height: 1.1;
+  color: var(--ink-black); background: var(--yellow);
+  border: 3px solid var(--ink-black); border-radius: var(--r-lg);
+  box-shadow: 6px 6px 0 var(--oxford);
+  cursor: pointer;
+  transition: transform var(--t-rapido), box-shadow var(--t-rapido);
+}
+.intro__boton i { font-size: 1.6em; animation: rebote-regalo 3.2s ease-in-out infinite; }
+.intro__boton:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0 var(--oxford); }
+.intro__boton:active { transform: translate(3px, 3px); box-shadow: 2px 2px 0 var(--oxford); }
+
+.intro__deco { position: absolute; color: var(--oxford); pointer-events: none; }
+.intro__deco--1 { font-size: 14rem; left: -3rem; top: -2rem; transform: rotate(-18deg); }
+.intro__deco--2 { font-size: 10rem; right: -2rem; bottom: 6%; transform: rotate(14deg); }
+.intro__deco--3 { font-size: 5rem; right: 12%; top: 10%; color: var(--prussian); transform: rotate(8deg); }
+
+.intro.saliendo { animation: salir-arriba 400ms ease forwards; }

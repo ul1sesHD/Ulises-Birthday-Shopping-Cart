@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "uli23",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["C:/Users/Ulises/AppData/Local/Temp/claude/dc430f5581cfb23e/3e8c4d41-4fc6-485d-b98e-04db51f13928/scratchpad/servidor.py", "C:/Users/Ulises/Documents/Cumple"],
+      "port": 5173
+    }
+  ]
+}

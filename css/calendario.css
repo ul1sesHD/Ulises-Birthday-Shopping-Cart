@@ -1,0 +1,104 @@
+/* ---------- Calendario de diciembre 2026, todo en CSS ---------- */
+
+.cal { position: relative; width: min(100% - 2rem, 760px); margin: var(--sp-7) auto; }
+
+.cal__hoja {
+  position: relative;
+  background: var(--paper); color: var(--ink-black);
+  border: 3px solid var(--ink-black);
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-oxford-lg);
+  padding: calc(var(--sp-6) + 10px) clamp(0.75rem, 3vw, 2rem) clamp(1rem, 3vw, 2rem);
+}
+
+/* Espiral: agujeros con repeating-linear-gradient y anillos con radial-gradient */
+.cal__espiral {
+  position: absolute; left: 4%; right: 4%; top: -18px; height: 40px;
+  background:
+    radial-gradient(circle at 50% 70%, var(--ink-black) 0 5px, transparent 6px) 0 0 / 32px 40px repeat-x;
+  pointer-events: none;
+}
+.cal__espiral::before {
+  content: ""; position: absolute; inset: 0 0 12px;
+  background:
+    linear-gradient(90deg, transparent 0 11px, #9aa3b2 11px 15px, #c9ced8 15px 17px, #9aa3b2 17px 21px, transparent 21px) 0 0 / 32px 100% repeat-x;
+  border-radius: 6px;
+  mask: linear-gradient(#000 0 0);
+}
+
+.cal__cabeza { display: flex; justify-content: space-between; align-items: baseline; gap: var(--sp-4); margin-bottom: var(--sp-4); }
+.cal__mes { font-size: var(--fs-h1); color: var(--ink-black); }
+.cal__anio { font-family: var(--font-display); font-size: var(--fs-h2); color: var(--oxford); }
+
+.cal__semana, .cal__grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; list-style: none; margin: 0; padding: 0; }
+.cal__semana { margin-bottom: 6px; }
+.cal__semana abbr { text-decoration: none; text-align: center; font-weight: 800; font-size: var(--fs-tiny); color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.06em; }
+
+.cal__dia {
+  position: relative;
+  aspect-ratio: 1;
+  border: 1.5px solid var(--paper-line);
+  border-radius: var(--r-sm);
+  padding: 4px 6px;
+  font-family: var(--font-display); font-size: clamp(0.95rem, 2vw, 1.5rem);
+  color: var(--ink-black);
+  background: var(--bone);
+  display: flex; flex-direction: column; justify-content: space-between;
+}
+.cal__dia--vacio { background: transparent; border-style: dashed; border-color: transparent; }
+.cal__dia--fin { color: var(--oxford); }
+.cal__dia--pasado { color: #9a9483; }
+.cal__falta { font-family: var(--font-body); font-weight: 800; font-size: 0.625rem; line-height: 1.1; color: var(--ink-soft); }
+
+.cal__dia--cumple {
+  background: var(--gold); border: 3px solid var(--ink-black);
+  box-shadow: var(--sh-ink);
+  z-index: 2;
+  transform: rotate(-2deg);
+}
+.cal__dia--cumple .cal__pastel { font-size: clamp(1rem, 2.4vw, 1.7rem); color: var(--ink-black); }
+.cal__mini {
+  position: absolute; right: -28%; top: -38%;
+  width: 72%; min-width: 46px;
+  background: var(--paper); padding: 4px 4px 12px;
+  box-shadow: 3px 3px 0 var(--ink-black);
+  transform: rotate(9deg);
+}
+.cal__mini img { width: 100%; aspect-ratio: 1; object-fit: cover; background: #ece5d3; }
+
+/* Bloque grande de 3 dias, solo celular */
+.cal__destacado { display: none; }
+
+@media (max-width: 767px) {
+  .cal__destacado {
+    display: grid; grid-template-columns: 1fr 1.25fr 1fr; gap: var(--sp-2); align-items: end;
+    margin-bottom: var(--sp-5);
+  }
+  .cal__grande {
+    position: relative;
+    border: 2px solid var(--paper-line); border-radius: var(--r-md);
+    background: var(--bone);
+    padding: var(--sp-3) var(--sp-2);
+    text-align: center;
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+  }
+  .cal__grande-dia { font-weight: 800; font-size: var(--fs-tiny); color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.08em; }
+  .cal__grande-num { font-family: var(--font-display); font-size: 3rem; line-height: 1; }
+  .cal__grande--cumple {
+    background: var(--gold); border: 3px solid var(--ink-black); box-shadow: var(--sh-ink);
+    padding-block: var(--sp-5) var(--sp-4);
+    transform: rotate(-2deg);
+  }
+  .cal__grande--cumple .cal__grande-num { font-size: 4.5rem; }
+  .cal__grande--cumple .cal__grande-dia { color: var(--ink-black); }
+  .cal__grande--cumple .cal__pastel { font-size: 1.6rem; }
+  .cal__grande--cumple .cal__mini { right: -22%; top: -30%; width: 58%; }
+
+  .cal__dia { aspect-ratio: auto; min-height: 40px; font-size: 0.95rem; padding: 3px 4px; }
+  .cal__dia .cal__falta { display: none; }
+  .cal__dia--cumple .cal__mini { display: none; }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .cal__dia { aspect-ratio: 4 / 3; }
+}
